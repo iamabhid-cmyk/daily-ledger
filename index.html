@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="The Ledger">
+<meta name="theme-color" content="#14161F">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%2314161F'/%3E%3Ccircle cx='50' cy='50' r='34' fill='none' stroke='%23C9A227' stroke-width='6'/%3E%3Cpath d='M32 52 L44 64 L70 36' fill='none' stroke='%23C9A227' stroke-width='7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%2314161F'/%3E%3Ccircle cx='50' cy='50' r='34' fill='none' stroke='%23C9A227' stroke-width='6'/%3E%3Cpath d='M32 52 L44 64 L70 36' fill='none' stroke='%23C9A227' stroke-width='7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>The Ledger</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+  :root{
+    --bg: #14161F;
+    --surface: #1D2029;
+    --surface-hi: #262A36;
+    --gold: #C9A227;
+    --teal: #3FA796;
+    --rust: #B5533C;
+    --text: #EDEAE0;
+    --text-muted: #8B8D98;
+    --hairline: rgba(237,234,224,0.08);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: radial-gradient(ellipse at top, #191c27 0%, var(--bg) 55%);
+    color: var(--text);
+    font-family: 'IBM Plex Sans', sans-serif;
+    min-height: 100vh;
+    padding: 28px 16px 60px;
+  }
+
+  .wrap { max-width: 640px; margin: 0 auto; }
+
+  /* ---------- Hero ---------- */
+  .hero {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 22px;
+    background: var(--surface);
+    border: 1px solid var(--hairline);
+    border-radius: 18px;
+    margin-bottom: 22px;
+  }
+
+  .ring {
+    position: relative;
+    width: 84px;
+    height: 84px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.5s ease;
+  }
+  .ring::before {
+    content: "";
+    position: absolute;
+    inset: 6px;
+    border-radius: 50%;
+    background: var(--surface);
+  }
+  .ring-label {
+    position: relative;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 17px;
+    font-weight: 600;
+  }
+
+  .hero-text .eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .hero-text h1 {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 26px;
+    margin: 0 0 6px;
+    line-height: 1.1;
+  }
+  .hero-meta {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12.5px;
+    color: var(--text-muted);
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+  .hero-meta b { color: var(--teal); }
+
+  /* ---------- Pillar sections ---------- */
+  .pillar {
+    background: var(--surface);
+    border: 1px solid var(--hairline);
+    border-radius: 16px;
+    margin-bottom: 16px;
+    overflow: hidden;
+  }
+  .pillar-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    padding: 14px 18px 10px;
+    border-bottom: 1px solid var(--hairline);
+  }
+  .pillar-tag {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    color: var(--gold);
+    background: rgba(201,162,39,0.1);
+    border: 1px solid rgba(201,162,39,0.3);
+    padding: 2px 8px;
+    border-radius: 6px;
+    margin-right: 10px;
+  }
+  .pillar-name {
+    font-family: 'Fraunces', serif;
+    font-size: 17px;
+    font-weight: 600;
+    flex: 1;
+  }
+  .pillar-streak {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11.5px;
+    color: var(--text-muted);
+  }
+  .pillar-streak b { color: var(--teal); }
+
+  .task-list { padding: 6px 8px; }
+
+  .task-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 10px;
+    border-radius: 10px;
+    transition: background 0.15s ease;
+  }
+  .task-row:hover { background: var(--surface-hi); }
+
+  .seal {
+    position: relative;
+    width: 30px;
+    height: 30px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    border: 2px solid rgba(237,234,224,0.25);
+    background: transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    transition: border-color 0.2s ease, background 0.2s ease;
+  }
+  .seal svg { width: 15px; height: 15px; opacity: 0; transition: opacity 0.15s ease; }
+  .seal.done {
+    border-color: var(--gold);
+    background: var(--gold);
+    animation: stamp 0.28s ease;
+  }
+  .seal.done svg { opacity: 1; }
+  .seal.done svg path,
+  .seal.done svg circle { stroke: var(--bg); }
+
+  @keyframes stamp {
+    0% { transform: scale(0.7) rotate(-8deg); }
+    60% { transform: scale(1.15) rotate(3deg); }
+    100% { transform: scale(1) rotate(0deg); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .seal.done { animation: none; }
+  }
+
+  .task-text {
+    flex: 1;
+    font-size: 14.5px;
+    line-height: 1.35;
+  }
+  .task-text.done { color: var(--text-muted); text-decoration: line-through; text-decoration-color: rgba(139,141,152,0.6); }
+
+  .task-del {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 16px;
+    cursor: pointer;
+    padding: 4px 6px;
+    opacity: 0.5;
+    transition: opacity 0.15s ease, color 0.15s ease;
+  }
+  .task-del:hover { opacity: 1; color: var(--rust); }
+
+  .add-row {
+    display: flex;
+    gap: 8px;
+    padding: 10px 14px 14px;
+  }
+  .add-row input {
+    flex: 1;
+    background: var(--surface-hi);
+    border: 1px solid var(--hairline);
+    border-radius: 8px;
+    padding: 9px 12px;
+    color: var(--text);
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 13.5px;
+    outline: none;
+  }
+  .add-row input:focus { border-color: var(--gold); }
+  .add-row input::placeholder { color: var(--text-muted); }
+  .add-row button {
+    background: var(--teal);
+    border: none;
+    color: #0F1712;
+    font-weight: 600;
+    font-size: 13px;
+    border-radius: 8px;
+    padding: 0 16px;
+    cursor: pointer;
+  }
+  .add-row button:hover { filter: brightness(1.08); }
+
+  .footnote {
+    text-align: center;
+    color: var(--text-muted);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    margin-top: 26px;
+    letter-spacing: 0.04em;
+  }
+
+  /* ---------- History ---------- */
+  .history-section {
+    background: var(--surface);
+    border: 1px solid var(--hairline);
+    border-radius: 16px;
+    margin-bottom: 16px;
+    overflow: hidden;
+  }
+  .history-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px;
+    cursor: pointer;
+    font-family: 'Fraunces', serif;
+    font-size: 17px;
+    font-weight: 600;
+  }
+  .history-toggle .chev {
+    font-family: 'IBM Plex Mono', monospace;
+    color: var(--text-muted);
+    font-size: 13px;
+    transition: transform 0.2s ease;
+  }
+  .history-toggle.open .chev { transform: rotate(180deg); }
+
+  .history-panel {
+    display: none;
+    padding: 4px 18px 18px;
+    border-top: 1px solid var(--hairline);
+  }
+  .history-panel.show { display: block; }
+
+  .history-legend {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10.5px;
+    color: var(--text-muted);
+    margin: 12px 0 10px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .legend-chip { width: 11px; height: 11px; border-radius: 3px; display: inline-block; margin-right: 3px; vertical-align: -1px; }
+
+  .history-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 6px;
+    margin-top: 4px;
+  }
+  .history-cell {
+    aspect-ratio: 1 / 1;
+    border-radius: 6px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform 0.1s ease;
+  }
+  .history-cell:active { transform: scale(0.9); }
+  .history-cell.today { border-color: var(--gold); }
+
+  .history-detail {
+    margin-top: 12px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12.5px;
+    color: var(--text-muted);
+    min-height: 16px;
+  }
+  .history-detail b { color: var(--text); }
+
+  /* ---------- Voice capture ---------- */
+  .voice-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--surface);
+    border: 1px solid var(--hairline);
+    border-radius: 16px;
+    padding: 12px 16px;
+    margin-bottom: 22px;
+  }
+  .mic-btn {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    border: none;
+    background: var(--rust);
+    color: var(--text);
+    flex-shrink: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s ease, transform 0.15s ease;
+  }
+  .mic-btn svg { width: 19px; height: 19px; }
+  .mic-btn.listening {
+    background: var(--teal);
+    animation: pulse 1.1s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(63,167,150,0.5); }
+    50% { box-shadow: 0 0 0 8px rgba(63,167,150,0); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .mic-btn.listening { animation: none; }
+  }
+  .voice-status {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12.5px;
+    color: var(--text-muted);
+  }
+  .voice-status b { color: var(--text); font-weight: 500; }
+
+  .capture-strip {
+    display: none;
+    margin-top: 4px;
+    padding-top: 12px;
+    border-top: 1px solid var(--hairline);
+  }
+  .capture-strip.show { display: block; }
+  .capture-text {
+    font-family: 'Fraunces', serif;
+    font-size: 15px;
+    margin-bottom: 10px;
+    line-height: 1.35;
+  }
+  .capture-cats {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .capture-cats button {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11.5px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    border: 1px solid rgba(201,162,39,0.35);
+    background: rgba(201,162,39,0.1);
+    color: var(--gold);
+    padding: 6px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  .capture-cats button:hover { background: rgba(201,162,39,0.2); }
+  .capture-cancel {
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 12px;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 6px 6px;
+  }
+  .capture-cancel:hover { color: var(--rust); }
+
+  .empty {
+    padding: 16px 18px;
+    color: var(--text-muted);
+    font-size: 13px;
+    font-style: italic;
+  }
+</style>
+</head>
+<body>
+<div class="wrap" id="app">
+  <div class="hero">
+    <div class="ring" id="ring">
+      <div class="ring-label" id="ringLabel">0%</div>
+    </div>
+    <div class="hero-text">
+      <div class="eyebrow" id="dateLabel">—</div>
+      <h1>The Ledger</h1>
+      <div class="hero-meta">
+        <span>Tasks <b id="doneCount">0</b>/<span id="totalCount">0</span></span>
+        <span>Perfect-day streak <b id="overallStreak">0</b></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="voice-bar">
+    <button class="mic-btn" id="micBtn" aria-label="Speak a task">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+    </button>
+    <div class="voice-status" id="voiceStatus">Tap the mic and say a task out loud</div>
+  </div>
+
+  <div class="capture-strip" id="captureStrip">
+    <div class="capture-text" id="captureText"></div>
+    <div class="capture-cats" id="captureCats"></div>
+    <button class="capture-cancel" id="captureCancel">Discard</button>
+  </div>
+
+  <div id="pillars"></div>
+
+  <div class="history-section">
+    <div class="history-toggle" id="historyToggle">
+      <span>Past 28 days</span>
+      <span class="chev">▾</span>
+    </div>
+    <div class="history-panel" id="historyPanel">
+      <div class="history-grid" id="historyGrid"></div>
+      <div class="history-legend">
+        <span><span class="legend-chip" style="background:var(--surface-hi)"></span>no data</span>
+        <span><span class="legend-chip" style="background:rgba(181,83,60,0.55)"></span>missed</span>
+        <span><span class="legend-chip" style="background:rgba(201,162,39,0.55)"></span>partial</span>
+        <span><span class="legend-chip" style="background:var(--teal)"></span>perfect</span>
+      </div>
+      <div class="history-detail" id="historyDetail">Tap a day to see details</div>
+    </div>
+  </div>
+
+  <div class="footnote">Resets each day &middot; kept only on this device</div>
+</div>
+
+<script>
+const CATEGORIES = [
+  { key: 'mshft', tag: 'MSHFT', name: 'Mindshift' },
+  { key: 'wlth',  tag: 'WLTH',  name: 'Wealth' },
+  { key: 'body',  tag: 'BODY',  name: 'Body' },
+  { key: 'know',  tag: 'KNOW',  name: 'Knowledge' },
+];
+
+const DEFAULT_TASKS = [
+  { category: 'mshft', text: 'Check shop footfall / sales log' },
+  { category: 'mshft', text: 'Follow up with one supplier or customer lead' },
+  { category: 'wlth',  text: 'Check VIX / FII data before market open' },
+  { category: 'wlth',  text: 'Review open positions against SL / target' },
+  { category: 'body',  text: 'Complete today\'s workout' },
+  { category: 'body',  text: 'Log meals within calorie target' },
+  { category: 'know',  text: '20–30 min research on a topic' },
+  { category: 'know',  text: 'Note down one content / video idea' },
+];
+
+function uid() {
+  return 't' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+}
+
+function todayKey() {
+  return new Date().toLocaleDateString('en-CA');
+}
+
+function yesterdayKey() {
+  const d = new Date();
+  d.setDate(d.getDate() - 1);
+  return d.toLocaleDateString('en-CA');
+}
+
+function sealSVG() {
+  return '<svg viewBox="0 0 24 24" fill="none"><path d="M4 12.5L9.5 18L20 6" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+}
+
+let tasks = [];
+let overallStreak = 0;
+
+async function loadState() {
+  let meta = null;
+  try {
+    const raw = localStorage.getItem('routine-meta');
+    meta = raw ? JSON.parse(raw) : null;
+  } catch (e) { meta = null; }
+
+  try {
+    const raw = localStorage.getItem('routine-tasks');
+    tasks = raw ? JSON.parse(raw) : null;
+  } catch (e) { tasks = null; }
+
+  if (!tasks) {
+    tasks = DEFAULT_TASKS.map(t => ({ id: uid(), category: t.category, text: t.text, done: false, streak: 0 }));
+  }
+
+  const tKey = todayKey();
+  const yKey = yesterdayKey();
+
+  if (!meta) {
+    overallStreak = 0;
+  } else if (meta.todayKey === tKey) {
+    overallStreak = meta.overallStreak || 0;
+  } else {
+    const wasPerfect = tasks.length > 0 && tasks.every(t => t.done);
+    const consecutive = meta.todayKey === yKey;
+    if (consecutive && wasPerfect) {
+      overallStreak = (meta.overallStreak || 0) + 1;
+    } else {
+      overallStreak = 0;
+    }
+
+    const hist = loadHistory();
+    hist[meta.todayKey] = { done: tasks.filter(t => t.done).length, total: tasks.length };
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - 90);
+    Object.keys(hist).forEach(k => { if (new Date(k) < cutoff) delete hist[k]; });
+    saveHistory(hist);
+
+    tasks = tasks.map(t => ({ ...t, streak: t.done ? t.streak : 0, done: false }));
+  }
+
+  await saveState();
+  render();
+}
+
+async function saveState() {
+  try { localStorage.setItem('routine-tasks', JSON.stringify(tasks)); } catch (e) {}
+  try { localStorage.setItem('routine-meta', JSON.stringify({ todayKey: todayKey(), overallStreak })); } catch (e) {}
+}
+
+function loadHistory() {
+  try {
+    const raw = localStorage.getItem('routine-history');
+    return raw ? JSON.parse(raw) : {};
+  } catch (e) { return {}; }
+}
+
+function saveHistory(hist) {
+  try { localStorage.setItem('routine-history', JSON.stringify(hist)); } catch (e) {}
+}
+
+function toggleTask(id) {
+  const t = tasks.find(x => x.id === id);
+  if (!t) return;
+  if (!t.done) { t.done = true; t.streak += 1; }
+  else { t.done = false; t.streak = Math.max(0, t.streak - 1); }
+  saveState();
+  render();
+}
+
+function deleteTask(id) {
+  tasks = tasks.filter(x => x.id !== id);
+  saveState();
+  render();
+}
+
+function addTask(category, text) {
+  const clean = text.trim();
+  if (!clean) return;
+  tasks.push({ id: uid(), category, text: clean, done: false, streak: 0 });
+  saveState();
+  render();
+}
+
+function render() {
+  const dateEl = document.getElementById('dateLabel');
+  dateEl.textContent = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+
+  const doneCount = tasks.filter(t => t.done).length;
+  const total = tasks.length;
+  const pct = total ? Math.round((doneCount / total) * 100) : 0;
+
+  document.getElementById('doneCount').textContent = doneCount;
+  document.getElementById('totalCount').textContent = total;
+  document.getElementById('overallStreak').textContent = overallStreak;
+  document.getElementById('ringLabel').textContent = pct + '%';
+
+  const ring = document.getElementById('ring');
+  ring.style.background = `conic-gradient(#C9A227 ${pct * 3.6}deg, rgba(237,234,224,0.1) 0deg)`;
+
+  const pillarsEl = document.getElementById('pillars');
+  pillarsEl.innerHTML = '';
+
+  CATEGORIES.forEach(cat => {
+    const catTasks = tasks.filter(t => t.category === cat.key);
+    const catDone = catTasks.filter(t => t.done).length;
+    const catStreakMax = catTasks.reduce((m, t) => Math.max(m, t.streak), 0);
+
+    const section = document.createElement('div');
+    section.className = 'pillar';
+
+    const head = document.createElement('div');
+    head.className = 'pillar-head';
+    head.innerHTML = `
+      <div style="display:flex;align-items:baseline;">
+        <span class="pillar-tag">${cat.tag}</span>
+        <span class="pillar-name">${cat.name}</span>
+      </div>
+      <span class="pillar-streak">${catDone}/${catTasks.length} &middot; best streak <b>${catStreakMax}</b></span>
+    `;
+    section.appendChild(head);
+
+    const list = document.createElement('div');
+    list.className = 'task-list';
+
+    if (catTasks.length === 0) {
+      const empty = document.createElement('div');
+      empty.className = 'empty';
+      empty.textContent = 'No tasks yet — add one below.';
+      list.appendChild(empty);
+    }
+
+    catTasks.forEach(t => {
+      const row = document.createElement('div');
+      row.className = 'task-row';
+      row.innerHTML = `
+        <button class="seal ${t.done ? 'done' : ''}" data-id="${t.id}" aria-label="Toggle task">${sealSVG()}</button>
+        <div class="task-text ${t.done ? 'done' : ''}">${t.text}</div>
+        <button class="task-del" data-del="${t.id}" aria-label="Delete task">×</button>
+      `;
+      list.appendChild(row);
+    });
+
+    section.appendChild(list);
+
+    const addRow = document.createElement('div');
+    addRow.className = 'add-row';
+    addRow.innerHTML = `
+      <input type="text" placeholder="Add a task to ${cat.name}…" data-cat="${cat.key}" />
+      <button data-addbtn="${cat.key}">Add</button>
+    `;
+    section.appendChild(addRow);
+
+    pillarsEl.appendChild(section);
+  });
+
+  document.querySelectorAll('.seal').forEach(btn => {
+    btn.addEventListener('click', () => toggleTask(btn.dataset.id));
+  });
+  document.querySelectorAll('.task-del').forEach(btn => {
+    btn.addEventListener('click', () => deleteTask(btn.dataset.del));
+  });
+  document.querySelectorAll('[data-addbtn]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const cat = btn.dataset.addbtn;
+      const input = document.querySelector(`input[data-cat="${cat}"]`);
+      addTask(cat, input.value);
+      input.value = '';
+    });
+  });
+  document.querySelectorAll('.add-row input').forEach(input => {
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        addTask(input.dataset.cat, input.value);
+        input.value = '';
+      }
+    });
+  });
+
+  renderHistory(doneCount, total);
+}
+
+function renderHistory(liveDone, liveTotal) {
+  const grid = document.getElementById('historyGrid');
+  const detail = document.getElementById('historyDetail');
+  const hist = loadHistory();
+  const tKey = todayKey();
+
+  grid.innerHTML = '';
+  const days = [];
+  for (let i = 27; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    days.push(d.toLocaleDateString('en-CA'));
+  }
+
+  days.forEach(dateKey => {
+    let done, total, hasData;
+    if (dateKey === tKey) {
+      done = liveDone; total = liveTotal; hasData = total > 0;
+    } else if (hist[dateKey]) {
+      done = hist[dateKey].done; total = hist[dateKey].total; hasData = true;
+    } else {
+      done = 0; total = 0; hasData = false;
+    }
+    const pct = hasData && total > 0 ? done / total : null;
+
+    const cell = document.createElement('div');
+    cell.className = 'history-cell' + (dateKey === tKey ? ' today' : '');
+    if (pct === null) cell.style.background = 'var(--surface-hi)';
+    else if (pct === 1) cell.style.background = 'var(--teal)';
+    else if (pct === 0) cell.style.background = 'rgba(181,83,60,0.55)';
+    else cell.style.background = 'rgba(201,162,39,' + (0.3 + pct * 0.5) + ')';
+
+    cell.addEventListener('click', () => {
+      const label = new Date(dateKey + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+      detail.innerHTML = pct === null
+        ? '<b>' + label + '</b> — no data'
+        : '<b>' + label + '</b> — ' + done + '/' + total + ' tasks completed';
+    });
+
+    grid.appendChild(cell);
+  });
+}
+
+const historyToggle = document.getElementById('historyToggle');
+const historyPanel = document.getElementById('historyPanel');
+historyToggle.addEventListener('click', () => {
+  historyToggle.classList.toggle('open');
+  historyPanel.classList.toggle('show');
+});
+
+loadState();
+
+/* ---------- Voice capture (fully isolated: any failure here can't break the app) ---------- */
+try {
+  const micBtn = document.getElementById('micBtn');
+  const voiceStatus = document.getElementById('voiceStatus');
+  const captureStrip = document.getElementById('captureStrip');
+  const captureText = document.getElementById('captureText');
+  const captureCats = document.getElementById('captureCats');
+  const captureCancel = document.getElementById('captureCancel');
+
+  const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
+  let recognition = null;
+  let listening = false;
+  let pendingText = '';
+
+  function showCapture(text) {
+    pendingText = text;
+    captureText.textContent = '\u201C' + text + '\u201D';
+    captureCats.innerHTML = '';
+    CATEGORIES.forEach(cat => {
+      const b = document.createElement('button');
+      b.textContent = cat.tag + ' \u00B7 ' + cat.name;
+      b.addEventListener('click', () => {
+        addTask(cat.key, pendingText);
+        hideCapture();
+        voiceStatus.innerHTML = 'Added to <b>' + cat.name + '</b>. Tap the mic to add another.';
+      });
+      captureCats.appendChild(b);
+    });
+    captureStrip.classList.add('show');
+  }
+
+  function hideCapture() {
+    captureStrip.classList.remove('show');
+    pendingText = '';
+  }
+
+  captureCancel.addEventListener('click', () => {
+    hideCapture();
+    voiceStatus.textContent = 'Discarded. Tap the mic and say a task out loud';
+  });
+
+  if (!SpeechRecognitionAPI) {
+    micBtn.disabled = true;
+    micBtn.style.opacity = '0.4';
+    voiceStatus.textContent = 'Voice input isn\u2019t supported in this browser \u2014 use Safari.';
+  } else {
+    try {
+      recognition = new SpeechRecognitionAPI();
+      recognition.lang = 'en-IN';
+      recognition.interimResults = false;
+      recognition.maxAlternatives = 1;
+
+      recognition.onstart = () => {
+        listening = true;
+        micBtn.classList.add('listening');
+        voiceStatus.textContent = 'Listening\u2026 say the task now';
+      };
+
+      recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        showCapture(transcript);
+        voiceStatus.textContent = 'Got it \u2014 pick which pillar this belongs to:';
+      };
+
+      recognition.onerror = (event) => {
+        voiceStatus.textContent = event.error === 'not-allowed'
+          ? 'Microphone access denied \u2014 enable it in Settings > Safari.'
+          : 'Didn\u2019t catch that \u2014 tap the mic and try again.';
+      };
+
+      recognition.onend = () => {
+        listening = false;
+        micBtn.classList.remove('listening');
+      };
+
+      micBtn.addEventListener('click', () => {
+        try {
+          if (listening) { recognition.stop(); return; }
+          hideCapture();
+          recognition.start();
+        } catch (e) {
+          voiceStatus.textContent = 'Couldn\u2019t start the mic \u2014 try again.';
+        }
+      });
+    } catch (e) {
+      micBtn.disabled = true;
+      micBtn.style.opacity = '0.4';
+      voiceStatus.textContent = 'Voice input isn\u2019t available here \u2014 use Safari directly.';
+    }
+  }
+} catch (e) {
+  // Voice feature failed to initialize entirely; rest of the app is unaffected.
+}
+</script>
+</body>
+</html>
